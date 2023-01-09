@@ -198,7 +198,17 @@ func (c *HelpMockClientV1) GetArticles(ctx context.Context, correlationId string
 }
 
 func (c *HelpMockClientV1) GetRandomArticle(ctx context.Context, correlationId string, filter *data.FilterParams) (*HelpArticleV1, error) {
-	buf := *c.articles[random.Integer.Next(0, len(c.articles))]
+	filterFunc := c.composeArticlesFilter(filter)
+
+	items := make([]*HelpArticleV1, 0)
+	for _, v := range c.articles {
+		item := v
+		if filterFunc(item) {
+			items = append(items, item)
+		}
+	}
+
+	buf := *items[random.Integer.Next(0, len(items))]
 	return &buf, nil
 }
 
